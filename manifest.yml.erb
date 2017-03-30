@@ -1,0 +1,11 @@
+---
+
+applications:
+  - name: <%= ENV.fetch("PAAS_APP_NAME") %>
+    routes:
+      - route: notify-route-service-<%= ENV.fetch("PAAS_SPACE") %>.cloudapps.digital
+    buildpack: staticfile_buildpack
+    instances: <%= ENV.fetch("PAAS_INSTANCES", "1") %>
+    memory: 512M
+    env:
+      ALLOWED_IPS: "<%= ENV.fetch("ALLOWED_IPS") %>"
