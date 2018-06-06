@@ -3,7 +3,7 @@
 applications:
   - name: <%= ENV.fetch("PAAS_APP_NAME") %>
     routes:
-      - route: notify-route-service-<%= ENV.fetch("PAAS_SPACE") %>.cloudapps.digital
+      - route: <%= ENV.fetch("PAAS_APP_NAME") %>.cloudapps.digital
     buildpack: staticfile_buildpack
     instances: <%= ENV.fetch("PAAS_INSTANCES", "1") %>
     memory: 512M
