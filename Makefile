@@ -15,21 +15,13 @@ help:
 generate-manifest: ## Generates the PaaS manifest file
 	ALLOWED_IPS=${PROMETHEUS_IP_LIST} erb manifest.yml.erb
 
-.PHONY: paas-login
-paas-login: ## Log in to PaaS
-	$(if ${PAAS_USERNAME},,$(error Must specify PAAS_USERNAME))
-	$(if ${PAAS_PASSWORD},,$(error Must specify PAAS_PASSWORD))
-
-	mkdir -p ${CF_HOME}
-	@cf login -a "${PAAS_API}" -u ${PAAS_USERNAME} -p "${PAAS_PASSWORD}" -o "${PAAS_ORG}" -s "${PAAS_SPACE}"
-
 .PHONY: paas-push
 paas-push: ## Pushes the app to Cloud Foundry (causes downtime!)
 	cf push -f <(make -s generate-manifest)
 
 .PHONY: paas-create-route-service
 paas-create-route-service: ## Creates the route service
-	cf create-user-provided-service ${PAAS_APP_NAME} -r https://${PAAS_APP_NAME}.cloudapps.digital
+	cf create-user-provided-service ${PAAS_APP_NAME} -r https://${PAAS_APP_NAME}.${PAAS_DOMAIN}
 
 .PHONY: paas-bind-route-service
 paas-bind-route-service: ## Binds the route service to the given route
