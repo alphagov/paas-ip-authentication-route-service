@@ -1,1 +1,4 @@
 .envrc
+
+# local env vars
+environment.sh
