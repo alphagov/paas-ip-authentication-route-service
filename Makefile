@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 
 PAAS_ORG = gds-tech-ops
-PAAS_APP_NAME ?= re-whitelist-route-service
+PAAS_APP_NAME ?= re-ip-whitelist-service
 PAAS_DOMAIN ?= cloudapps.digital
 
 $(eval export PAAS_APP_NAME=${PAAS_APP_NAME})
@@ -13,7 +13,7 @@ help:
 
 .PHONY: generate-manifest
 generate-manifest: ## Generates the PaaS manifest file
-	ALLOWED_IPS=${PROMETHEUS_IP_LIST} erb manifest.yml.erb
+	ALLOWED_IPS=${IP_WHITELIST} erb manifest.yml.erb
 
 .PHONY: paas-push
 paas-push: ## Pushes the app to Cloud Foundry (causes downtime!)
@@ -21,7 +21,8 @@ paas-push: ## Pushes the app to Cloud Foundry (causes downtime!)
 
 .PHONY: paas-create-route-service
 paas-create-route-service: ## Creates the route service
-	cf create-user-provided-service ${PAAS_APP_NAME} -r https://${PAAS_APP_NAME}.${PAAS_DOMAIN}
+	$(if ${ENV},,$(error Must specify ENV))
+	cf create-user-provided-service ${PAAS_APP_NAME} -r https://${PAAS_APP_NAME}-${ENV}.${PAAS_DOMAIN}
 
 .PHONY: paas-bind-route-service
 paas-bind-route-service: ## Binds the route service to the given route

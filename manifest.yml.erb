@@ -3,9 +3,9 @@
 applications:
   - name: <%= ENV.fetch("PAAS_APP_NAME") %>
     routes:
-      - route: <%= ENV.fetch("PAAS_APP_NAME") %>.cloudapps.digital
+      - route: <%= ENV.fetch("PAAS_APP_NAME") %>-<%= ENV.fetch("ENV") %>.cloudapps.digital
     buildpack: staticfile_buildpack
     instances: <%= ENV.fetch("PAAS_INSTANCES", "1") %>
-    memory: 512M
+    memory: 256M
     env:
       ALLOWED_IPS: "<%= ENV.fetch("ALLOWED_IPS") %>"
