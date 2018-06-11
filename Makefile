@@ -21,8 +21,11 @@ paas-push: ## Pushes the app to Cloud Foundry (causes downtime!)
 
 .PHONY: paas-create-route-service
 paas-create-route-service: ## Creates the route service
+	# Make sure that the ENV environment variable is set either to a test environment name or staging/production
 	$(if ${ENV},,$(error Must specify ENV))
-	cf create-user-provided-service ${PAAS_APP_NAME} -r https://${PAAS_APP_NAME}-${ENV}.${PAAS_DOMAIN}
+	# For the production environment don't set it as part of the route
+	$(if $(filter ${ENV},production),$(eval export ENV_ROUTE=),$(eval export ENV_ROUTE=-${ENV}))
+	cf create-user-provided-service ${PAAS_APP_NAME} -r https://${PAAS_APP_NAME}${ENV_ROUTE}.${PAAS_DOMAIN}
 
 .PHONY: paas-bind-route-service
 paas-bind-route-service: ## Binds the route service to the given route
