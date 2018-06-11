@@ -73,21 +73,3 @@ make paas-bind-route-service PAAS_ROUTE=app-02
 ### Test that the application is IP whitelisted
 
 `curl` your application to see whether the IP is accessible using a machine within the IP whitelist, and that access is blocked outside of the IP whitelist.
-
-## How to IP whitelist your application with the production route service
-
-### Registering the application as a user-provided service
-
-You only need to do this once per PaaS space.
-
-```
-cf create-user-provided-service re-ip-whitelist-service -r https://re-ip-whitelist-service-production.cloudapps.digital
-```
-
-### Register the application as a route-service for a route
-
-You need to do this for all routes in your targeted space.
-
-```
-cf bind-route-service cloudapps.digital re-ip-whitelist-service --hostname <your paas app route>
-```
