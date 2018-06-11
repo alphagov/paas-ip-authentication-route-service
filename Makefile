@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 
 PAAS_ORG = gds-tech-ops
-PAAS_APP_NAME ?= re-whitelist-route-service
+PAAS_APP_NAME ?= re-ip-whitelist-service
 PAAS_DOMAIN ?= cloudapps.digital
 
 $(eval export PAAS_APP_NAME=${PAAS_APP_NAME})
@@ -13,15 +13,7 @@ help:
 
 .PHONY: generate-manifest
 generate-manifest: ## Generates the PaaS manifest file
-	ALLOWED_IPS=${PROMETHEUS_IP_LIST} erb manifest.yml.erb
-
-.PHONY: paas-login
-paas-login: ## Log in to PaaS
-	$(if ${PAAS_USERNAME},,$(error Must specify PAAS_USERNAME))
-	$(if ${PAAS_PASSWORD},,$(error Must specify PAAS_PASSWORD))
-
-	mkdir -p ${CF_HOME}
-	@cf login -a "${PAAS_API}" -u ${PAAS_USERNAME} -p "${PAAS_PASSWORD}" -o "${PAAS_ORG}" -s "${PAAS_SPACE}"
+	ALLOWED_IPS=${IP_WHITELIST} erb manifest.yml.erb
 
 .PHONY: paas-push
 paas-push: ## Pushes the app to Cloud Foundry (causes downtime!)
@@ -29,7 +21,11 @@ paas-push: ## Pushes the app to Cloud Foundry (causes downtime!)
 
 .PHONY: paas-create-route-service
 paas-create-route-service: ## Creates the route service
-	cf create-user-provided-service ${PAAS_APP_NAME} -r https://${PAAS_APP_NAME}.cloudapps.digital
+	# Make sure that the ENV environment variable is set either to a test environment name or staging/production
+	$(if ${ENV},,$(error Must specify ENV))
+	# For the production environment don't set it as part of the route
+	$(if $(filter ${ENV},production),$(eval export ENV_ROUTE=),$(eval export ENV_ROUTE=-${ENV}))
+	cf create-user-provided-service ${PAAS_APP_NAME} -r https://${PAAS_APP_NAME}${ENV_ROUTE}.${PAAS_DOMAIN}
 
 .PHONY: paas-bind-route-service
 paas-bind-route-service: ## Binds the route service to the given route
