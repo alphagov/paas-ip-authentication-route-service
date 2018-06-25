@@ -34,8 +34,14 @@ The instance count can be set with the `PAAS_INSTANCES` environment variable (1 
 
 ## Deploying the route service application
 
-```
+```shell
 make paas-push
+
+# or to deploy to staging
+make staging-paas-push
+
+# or to deploy to production
+make prod-paas-push
 ```
 
 ## Development process
@@ -44,8 +50,14 @@ make paas-push
 
 You only need to do this once per PaaS space.
 
-```
+```shell
 make paas-create-route-service
+
+# or to register the staging route service
+make staging-paas-create-route-service
+
+# or to register the production route service
+make prod-paas-create-route-service
 ```
 
 ### Register the application as a route-service for a route
