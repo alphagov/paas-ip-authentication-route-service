@@ -24,10 +24,14 @@ paas-create-route-service: ## Creates the route service
 	# Make sure that the ENV environment variable is set either to a test environment name or staging/production
 	$(if ${ENV},,$(error Must specify ENV))
 	# For the production environment don't set it as part of the route
-	$(if $(filter ${ENV},production),$(eval export ENV_ROUTE=),$(eval export ENV_ROUTE=-${ENV}))
-	cf create-user-provided-service ${PAAS_APP_NAME} -r https://${PAAS_APP_NAME}${ENV_ROUTE}.${PAAS_DOMAIN}
+	$(if $(filter ${ENV},production),,$(eval export PAAS_APP_NAME=${PAAS_APP_NAME}-${ENV}))
+	cf create-user-provided-service ${PAAS_APP_NAME} -r https://${PAAS_APP_NAME}.${PAAS_DOMAIN}
 
 .PHONY: paas-bind-route-service
 paas-bind-route-service: ## Binds the route service to the given route
+	# Make sure that the ENV environment variable is set either to a test environment name or staging/production
+	$(if ${ENV},,$(error Must specify ENV))
+	# For the production environment don't set it as part of the route
+	$(if $(filter ${ENV},production),,$(eval export PAAS_APP_NAME=${PAAS_APP_NAME}-${ENV}))
 	$(if ${PAAS_ROUTE},,$(error Must specify PAAS_ROUTE))
 	cf bind-route-service ${PAAS_DOMAIN} ${PAAS_APP_NAME} --hostname ${PAAS_ROUTE}

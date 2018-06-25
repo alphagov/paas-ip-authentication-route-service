@@ -1,7 +1,7 @@
 ---
 
 applications:
-  - name: <%= ENV.fetch("PAAS_APP_NAME") %>
+  - name: <%= ENV.fetch("PAAS_APP_NAME") %><%= ENV.fetch("ENV") == 'production' ? '' : '-' + ENV.fetch("ENV") %>
     routes:
       - route: <%= ENV.fetch("PAAS_APP_NAME") %><%= ENV.fetch("ENV") == 'production' ? '' : '-' + ENV.fetch("ENV") %>.cloudapps.digital
     buildpack: staticfile_buildpack
