@@ -1,10 +1,11 @@
+<% env=ENV.fetch("ENV") == "production" ? "" : "-" + ENV.fetch("ENV").sub(".","") %>
 ---
-
 applications:
-  - name: <%= ENV.fetch("PAAS_APP_NAME") %><%= ENV.fetch("ENV") == 'production' ? '' : '-' + ENV.fetch("ENV") %>
+  - name: <%= ENV.fetch("PAAS_APP_NAME") %><%= env %>
     routes:
-      - route: <%= ENV.fetch("PAAS_APP_NAME") %><%= ENV.fetch("ENV") == 'production' ? '' : '-' + ENV.fetch("ENV") %>.cloudapps.digital
-    buildpack: staticfile_buildpack
+      - route: <%= ENV.fetch("PAAS_APP_NAME") %><%= env %>.<%= ENV.fetch("PAAS_DOMAIN")%>
+    buildpacks: 
+      - staticfile_buildpack
     instances: <%= ENV.fetch("PAAS_INSTANCES", "1") %>
     memory: 256M
     env:

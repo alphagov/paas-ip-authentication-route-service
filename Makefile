@@ -1,11 +1,10 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-PAAS_ORG = gds-tech-ops
-PAAS_APP_NAME ?= re-ip-whitelist-service
-PAAS_DOMAIN ?= cloudapps.digital
-
-$(eval export PAAS_APP_NAME=${PAAS_APP_NAME})
+export PAAS_ORG ?= gds-tech-ops
+export PAAS_APP_NAME ?= re-ip-whitelist-service
+export PAAS_DOMAIN ?= cloudapps.digital
+export PAAS_INSTANCES ?= 1
 
 .PHONY: help
 help:
