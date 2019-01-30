@@ -22,8 +22,11 @@ paas-push: ## Pushes the app to Cloud Foundry (causes downtime!)
 .PHONY: paas-teardown
 paas-teardown: ## Removes the routing service (causes downtime!)
 	$(if ${PAAS_ROUTE},,$(error Must specify PAAS_ROUTE))
-	cf unbind-route-service ${PAAS_DOMAIN} ${PAAS_APP_NAME} --hostname ${PAAS_ROUTE}
-	cf delete ${PAAS_APP_NAME}
+	$(if $(filter ${ENV},production),,$(eval export PAAS_APP_NAME=${PAAS_APP_NAME}-${ENV}))
+	cf unbind-route-service -f ${PAAS_DOMAIN} ${PAAS_APP_NAME} --hostname ${PAAS_ROUTE}
+	cf delete-service -f ${PAAS_APP_NAME}
+	cf delete -f ${PAAS_APP_NAME}
+	cf delete-route -f ${PAAS_DOMAIN} --hostname ${PAAS_APP_NAME}
 
 .PHONY: staging-paas-push
 staging-paas-push: ## Pushes the app to prometheus-staging in Cloud Foundry (causes downtime!)
