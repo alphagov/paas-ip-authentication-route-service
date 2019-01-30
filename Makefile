@@ -1,10 +1,10 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-export PAAS_ORG ?= gds-tech-ops
 export PAAS_APP_NAME ?= re-ip-whitelist-service
 export PAAS_DOMAIN ?= cloudapps.digital
 export PAAS_INSTANCES ?= 1
+export PAAS_ROUTE
 
 .PHONY: help
 help:
@@ -19,6 +19,12 @@ paas-push: ## Pushes the app to Cloud Foundry (causes downtime!)
 	# Make sure that the ENV environment variable is set either to a test environment name or staging/production
 	$(if ${ENV},,$(error Must specify ENV))
 	cf push -f <(make -s generate-manifest)
+
+.PHONY: paas-teardown
+paas-teardown: ## Removes the routing service (causes downtime!)
+	$(if ${PAAS_ROUTE},,$(error Must specify PAAS_ROUTE))
+	cf unbind-route-service ${PAAS_DOMAIN} ${PAAS_APP_NAME} --hostname ${PAAS_ROUTE}
+	cf delete ${PAAS_APP_NAME}
 
 .PHONY: staging-paas-push
 staging-paas-push: ## Pushes the app to prometheus-staging in Cloud Foundry (causes downtime!)

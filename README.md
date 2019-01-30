@@ -11,7 +11,59 @@ All PaaS traffic will go through the route service therefore we can completely p
 
 You should log in using the Cloud Foundry CLI (https://docs.cloud.service.gov.uk/#setting-up-the-command-line).
 
-For all actions you should always have to make sure you selected the space you intend to target.
+For all actions you should always make sure you selected the space you intend to target.
+
+## Quick demo
+
+This example uses the Python Flask example from the [hello world examples](https://github.com/18f/cf-hello-worlds),
+`flask-example` deployed with `cf push --random-route`. Test it with `curl`, for example:
+
+```sh
+CURRENT_APP=flask-example
+URL=$(cf curl /v2/apps/$(cf app --guid $CURRENT_APP)/summary | jq -r '.routes[0] | @uri "https://\(.host).\(.domain.name)"')
+curl $URL
+```
+
+Copy `environment_samples.sh` to `environment.sh`. Edit it for cloud.gov so it looks something like this:
+
+```sh
+### environment.sh ###
+# Hope for a unique route by using your current username
+export ENV=$(whoami | sed -e 's/\.//g')
+
+# Allow all ipv4 addresses
+export IP_WHITELIST=0.0.0.0/0 
+
+# Or, allow current IP address
+# export IP_WHITELIST=$(dig +short myip.opendns.com)
+
+# Override `cloudapps.digital` default
+export PAAS_DOMAIN=app.cloud.gov
+
+# Set CURRENT_APP to name of app you want provide IP filtering for
+CURRENT_APP=flask-example
+
+# This sets PAAS_ROUTE to current route for CURRENT_APP (don't change)
+export PAAS_ROUTE=$(cf curl /v2/apps/$(cf app --guid $CURRENT_APP)/summary | jq -r '.routes[0].host')
+```
+
+Now you can `source` the environment file, push the route service and bind it:
+
+```sh
+source environment.sh
+make paas-push
+make paas-create-route-service
+make paas-bind-route-service
+```
+
+You can now test the whitelisting. If you've selected `IP_WHITELIST=0.0.0.0/0` you can change it
+to just allow your current IP addreess with:
+
+```sh
+export IP_WHITELIST=$(dig +short myip.opendns.com)
+make paas-push
+```
+
 
 ## Deployment
 
