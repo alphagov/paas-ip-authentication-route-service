@@ -4,7 +4,6 @@ SHELL := /bin/bash
 export PAAS_APP_NAME ?= re-ip-whitelist-service
 export PAAS_DOMAIN ?= cloudapps.digital
 export PAAS_INSTANCES ?= 1
-export PAAS_ROUTE
 
 .PHONY: help
 help:
