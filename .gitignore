@@ -2,3 +2,6 @@
 
 # local env vars
 environment.sh
+
+# local manifests
+manifest.yml
