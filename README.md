@@ -1,139 +1,57 @@
 # Reliability Engineering IP Whitelisting Route Service
 
-This application contains a simple Nginx application which acts as a proxy for your web applications and provides an IP restriction layer.
+This repo contains a simple Nginx application which acts as a proxy for your
+web applications and provides an IP restriction layer.
 
-All PaaS traffic will go through the route service therefore we can completely protect and/or filter traffic with this service.
+This repo is a template, which you should customise according to your needs
+using the application manifest.
+
+All PaaS traffic will go through the route service to filter traffic.
 
 ## Requirements
 
 * Cloud Foundry CLI (https://docs.cloudfoundry.org/cf-cli/install-go-cli.html)
-* The manifest template is generated using Ruby ERB therefore Ruby needs to be installed.
 
-You should log in using the Cloud Foundry CLI (https://docs.cloud.service.gov.uk/#setting-up-the-command-line).
+You should log in using the Cloud Foundry CLI
+(https://docs.cloud.service.gov.uk/#setting-up-the-command-line).
 
-For all actions you should always make sure you selected the space you intend to target.
+For all actions you should always make sure you selected the space you intend
+to target.
 
-## Quick demo
+## Customisation
 
-This example uses the Python Flask example from the [hello world examples](https://github.com/18f/cf-hello-worlds),
-`flask-example` deployed with `cf push --random-route`. Test it with `curl`, for example:
-
-```sh
-CURRENT_APP=flask-example
-URL=$(cf curl /v2/apps/$(cf app --guid $CURRENT_APP)/summary | jq -r '.routes[0] | @uri "https://\(.host).\(.domain.name)"')
-curl $URL
-```
-
-Copy `environment_samples.sh` to `environment.sh`. Edit it for cloud.gov so it looks something like this:
-
-```sh
-### environment.sh ###
-# Hope for a unique route by using your current username
-export ENV=$(whoami | sed -e 's/\.//g')
-
-# Allow all ipv4 addresses
-export IP_WHITELIST=0.0.0.0/0 
-
-# Or, allow current IP address
-# export IP_WHITELIST=$(dig +short myip.opendns.com)
-
-# Override `cloudapps.digital` default
-export PAAS_DOMAIN=app.cloud.gov
-
-# Set CURRENT_APP to name of app you want provide IP filtering for
-CURRENT_APP=flask-example
-
-# This sets PAAS_ROUTE to current route for CURRENT_APP (don't change)
-export PAAS_ROUTE=$(cf curl /v2/apps/$(cf app --guid $CURRENT_APP)/summary | jq -r '.routes[0].host')
-```
-
-Now you can `source` the environment file, push the route service and bind it:
-
-```sh
-source environment.sh
-make paas-push
-make paas-create-route-service
-make paas-bind-route-service
-```
-
-You can now test the whitelisting. If you've selected `IP_WHITELIST=0.0.0.0/0` you can change it
-to just allow your current IP addreess with:
-
-```sh
-export IP_WHITELIST=$(dig +short myip.opendns.com)
-make paas-push
-```
-
+Edit the `manifest.yml` and change the `ALLOWED_IPS` as appropriate.
 
 ## Deployment
 
-The default application name is `re-ip-whitelist-service`. If you want to change this (or you want to deploy multiple route services), set the `PAAS_APP_NAME` environment variable for the make commands.
+To deploy the app, run `cf push`.
 
-The default domain name is `cloudapps.digital`. If you want to change this (or you want to bind to different domains), set the `PAAS_DOMAIN` environment variable for the make commands.
+If you have not overwritten the `((app-name))` variables then you will need to
+run `cf push --var app-name=my-app`
 
-Before deploying the service, make a copy of the `environment_sample.sh` to `environment.sh`, then set the environment variables:
+If you want to add a custom route, add a route definition to the manifest:
 
-```
-export ENV=<your test environment name, or staging / production>
-export IP_WHITELIST=<the range of comma delimited IPs to allow access to the bound app>
-```
-
-Set the environment variables by sourcing it: 
-
-`source environment.sh`
-
-The instance count can be set with the `PAAS_INSTANCES` environment variable (1 by default).
-
-## Deploying the route service application
-
-```shell
-make paas-push
-
-# or to deploy to staging
-make staging-paas-push
-
-# or to deploy to production
-make prod-paas-push
+``` applications:
+  - name: ((app-name))
+    routes:
+      - route: my-subdomain.my-domain.com
+    ...
 ```
 
-## Development process
+## Use the app as a route service
 
-### Registering the application as a user-provided service
+Please refer to the official GOV.UK PaaS
+[documentation on route services](http://localhost:4567/deploying_services/route_services/#user-provided-route-services)
+for steps on deploying the route service.
 
-You only need to do this once per PaaS space.
+## Checking that it works
 
-```shell
-make paas-create-route-service
+The route service exposes two paths for checking the status.
 
-# or to register the staging route service
-make staging-paas-create-route-service
+The path `/_route-service-health` is for information and health checking, and
+has stats about the number of active connections which exist.
 
-# or to register the production route service
-make prod-paas-create-route-service
-```
-
-### Register the application as a route-service for a route
-
-You only need to do this once per PaaS space and for all routes.
-
-```
-make paas-bind-route-service PAAS_ROUTE=<route of your application>
-```
-
-### Complete installation example
-
-In this example we are deploying the route service to preview and binding two applications to it, which are accessible on `app-01.cloudapps.digital` and `app-02.cloudapps.digital`.
-
-```
-# First installation:
-make paas-push
-make paas-create-route-service
-
-# Run this for every applicaton once:
-make paas-bind-route-service PAAS_ROUTE=app-01
-make paas-bind-route-service PAAS_ROUTE=app-02
-```
-
-### Test that the application is IP whitelisted
-
-`curl` your application to see whether the IP is accessible using a machine within the IP whitelist, and that access is blocked outside of the IP whitelist.
+The path `/_route-service-check` is for checking if you may use the route
+service. If you are, then you will receive `OK`, if you are not you will
+received `Forbidden by ((app-name))`, where `((app-name))` is the value of the
+`APP_NAME` environment variable.
