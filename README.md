@@ -15,8 +15,8 @@ All PaaS traffic will go through the route service to filter traffic.
 You should log in using the Cloud Foundry CLI
 (https://docs.cloud.service.gov.uk/#setting-up-the-command-line).
 
-For all actions you should always make sure you selected the space you intend
-to target.
+For all actions you should always make sure you are targeting the correct
+space.
 
 ## Customisation
 
