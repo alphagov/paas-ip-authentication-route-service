@@ -1,4 +1,4 @@
-# Reliability Engineering IP Whitelisting Route Service
+# GOV.UK PaaS IP authentication Route Service
 
 This repo contains a simple Nginx application which acts as a proxy for your
 web applications and provides an IP restriction layer.
