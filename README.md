@@ -41,7 +41,7 @@ If you want to add a custom route, add a route definition to the manifest:
 ## Use the app as a route service
 
 Please refer to the official GOV.UK PaaS
-[documentation on route services](http://localhost:4567/deploying_services/route_services/#user-provided-route-services)
+[documentation on route services](https://docs.cloud.service.gov.uk/deploying_services/route_services/#user-provided-route-services)
 for steps on deploying the route service.
 
 ## Checking that it works
