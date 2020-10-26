@@ -22,7 +22,7 @@ space.
 
 Edit the `manifest.yml` and change the `ALLOWED_IPS` as appropriate.
 
-## Deployment
+## Deployment by hand
 
 To deploy the app, run `cf push`.
 
@@ -36,6 +36,18 @@ If you want to add a custom route, add a route definition to the manifest:
     routes:
       - route: my-subdomain.my-domain.com
     ...
+```
+
+## Deployment by script
+
+This repository provides a script that will deploy and configure this route service for you. See the example below for how to use it.
+
+```shell script
+ALLOWED_IPS="comma_separated_list_of_ips_eg_1.2.3.4,5.6.7.8" \
+ROUTE_SERVICE_APP_NAME="name_of_the_app_to_push" \
+ROUTE_SERVICE_NAME="name_of_the_route_service_to_create" \
+PROTECTED_APP_NAME="name_of_the_app_to_protect" \
+./deploy.sh
 ```
 
 ## Use the app as a route service
