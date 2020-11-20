@@ -1,0 +1,16 @@
+---
+name: Test
+
+on: ["pull_request"]
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Check shell script
+        run: shellcheck ./deploy.sh
