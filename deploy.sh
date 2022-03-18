@@ -30,7 +30,7 @@ IFS="," read -ra IPS <<< "$ALLOWED_IPS"
 
 NGINX_ALLOW_STATEMENTS=""
 for addr in "${IPS[@]}";
-  do NGINX_ALLOW_STATEMENTS="$NGINX_ALLOW_STATEMENTS \n allow $addr;"; true;
+  do NGINX_ALLOW_STATEMENTS="${NGINX_ALLOW_STATEMENTS} allow $addr;"; true;
 done;
 
 APPS_DOMAIN=$(cf curl "/v3/domains" | jq -r '[.resources[] | select(.name|endswith("apps.digital"))][0].name')
